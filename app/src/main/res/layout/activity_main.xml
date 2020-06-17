@@ -12,68 +12,98 @@
         android:layout_width="297dp"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
-        android:text="LocalHost1"
+        android:background="@color/colorAccent"
+        android:onClick="urlButtonClicked"
+        android:text=""
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/empty_slot" />
 
     <Button
         android:id="@+id/url2"
         android:layout_width="297dp"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:text="LocalHost2"
+        android:background="@color/colorAccent"
+        android:onClick="urlButtonClicked"
+        android:text=""
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url1" />
+        app:layout_constraintTop_toBottomOf="@+id/url1"
+        tools:text="@string/empty_slot" />
 
     <Button
         android:id="@+id/url3"
         android:layout_width="297dp"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:text="LocalHost3"
+        android:background="@color/colorAccent"
+        android:onClick="urlButtonClicked"
+        android:text=""
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url2" />
+        app:layout_constraintTop_toBottomOf="@+id/url2"
+        tools:text="@string/empty_slot" />
 
     <Button
         android:id="@+id/url4"
         android:layout_width="297dp"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:text="LocalHost4"
+        android:background="@color/colorAccent"
+        android:onClick="urlButtonClicked"
+        android:text=""
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url3" />
+        app:layout_constraintTop_toBottomOf="@+id/url3"
+        tools:text="@string/empty_slot" />
 
     <Button
         android:id="@+id/url5"
         android:layout_width="297dp"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:text="LocalHost5"
+        android:background="@color/colorAccent"
+        android:onClick="urlButtonClicked"
+        android:text=""
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url4" />
+        app:layout_constraintTop_toBottomOf="@+id/url4"
+        tools:text="@string/empty_slot" />
 
-    <Button
+    <EditText
         android:id="@+id/inputURL"
+        android:hint = "@string/type_url"
         android:layout_width="220dp"
         android:layout_height="59dp"
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
+        app:autoSizeTextType="uniform"
+        android:background="@color/colorAccent"
         android:layout_marginTop="180dp"
-        android:text="Type URL..."
+        android:textAlignment="center"
+        android:inputType="textUri"
+        android:textAllCaps="false"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url5" />
+        app:layout_constraintTop_toBottomOf="@+id/url5"
+        android:layout_gravity="center_horizontal"
+        android:autofillHints="@string/type_url" />
 
     <Button
         android:id="@+id/connectButton"
         android:layout_width="121dp"
         android:layout_height="59dp"
         android:layout_marginTop="180dp"
+        android:background="@color/colorAccent"
+        android:onClick="connectClicked"
         android:text="@string/connect"
+        android:textAllCaps="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.462"
         app:layout_constraintStart_toEndOf="@+id/inputURL"

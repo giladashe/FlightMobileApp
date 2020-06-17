@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">FlightMobileApp</string>
     <string name="connect">Connect</string>
+    <string name="type_url">Type url…</string>
+    <string name="empty_slot">Empty slot</string>
+
 </resources>
