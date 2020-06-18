@@ -19,5 +19,7 @@ interface ServersDataBaseDao {
     @Query("DELETE FROM servers_used")
     fun nukeTable()
 
+    @Query("SELECT distinct * from servers_used WHERE serverId = :id LIMIT 1")
+    fun getServer(id: Long): Server?
 
 }

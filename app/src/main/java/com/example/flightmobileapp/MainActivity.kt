@@ -1,20 +1,15 @@
 package com.example.flightsimulatorandroidapp
 
-import android.content.Context
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.example.flightmobileapp.R
 import com.example.flightmobileapp.Server
 import com.example.flightmobileapp.ServersDataBase
 import kotlinx.coroutines.*
-import java.util.stream.Collectors.toList
 
 class MainActivity : AppCompatActivity() {
     private val viewModelJob = Job()
@@ -22,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     // override fun on
     private var db: ServersDataBase? = null
-    private var servers: List<Server>? = null
+    private var servers: MutableList<Server>? = null
     private lateinit var button1: Button
     private lateinit var button2: Button
     private lateinit var button3: Button
@@ -30,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var button5: Button
     private lateinit var urlText: TextView
     private lateinit var buttonMap: Map<Int, Button>
+    private var biggestId: Long = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,33 +45,42 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         uiScope.launch {
             servers = getServers()
-            if (servers != null && servers!!.isNotEmpty()) {
-                val size: Int = servers!!.size
-                var i = 0
-                while (i < size) {
-                    buttonMap[i]!!.text = servers!![i].url
-                    buttonMap[i]!!.id = servers!![i].serverId.toInt()
-                    i++
-                }
-                if (size != 5) {
-                    while (i < 5) {
-                        buttonMap[i]!!.text = "Empty slot"
-                        i++
-                    }
-                }
-            }
+            updateButtons()
         }
 
     }
 
-    suspend fun getServers(): List<Server>? {
+    fun updateButtons() {
+        if (servers != null && servers!!.isNotEmpty()) {
+            val size: Int = servers!!.size
+            var i = 0
+            var id: Long
+            while (i < size) {
+                buttonMap[i]!!.text = servers!![i].url
+                id = servers!![i].serverId
+                buttonMap[i]!!.id = id.toInt()
+                if (id > biggestId) {
+                    biggestId = id
+                }
+                i++
+            }
+            if (size != 5) {
+                while (i < 5) {
+                    buttonMap[i]!!.text = "Empty slot"
+                    i++
+                }
+            }
+        }
+    }
+
+    suspend fun getServers(): MutableList<Server>? {
         var servers: List<Server>?
         withContext(Dispatchers.IO) {
             // db!!.serversDataBaseDao.insert(Server(url = "https://localhost:5001"))
             //db?.serversDataBaseDao?.nukeTable()
             servers = db!!.serversDataBaseDao.getFirstFive()
         }
-        return servers
+        return servers?.toMutableList()
     }
 
 
@@ -105,12 +110,34 @@ class MainActivity : AppCompatActivity() {
         val text: String = urlText.text.toString()
         if (text != "") {
             val id: Long? = buttonHasText(text)
-            uiScope.launch {
-                updateDB(id, text)
+            var size: Int = servers!!.size
+            var i = 0
+            if (id != null) {
+                while (i < size) {
+                    if (servers!![i].serverId == id) {
+                        val server: Server? = servers?.removeAt(i)
+                        if (servers != null && server != null) {
+                            server.time = System.currentTimeMillis()
+                            servers?.add(0, server)
+                        }
+                        break
+                    }
+                    i++
+                }
+            } else {
+                biggestId += 1
+                servers?.add(0, Server(serverId = biggestId, url = text))
+                size++
+                if (size > 5) {
+                    servers?.removeAt(5)
+                }
             }
+            updateButtons()
+            //todo connect!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! to url
         }
+        /*
         finish();
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
     private fun buttonHasText(text: String): Long? {
@@ -124,12 +151,40 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    suspend fun updateDB(id: Long?, newUrl: String) {
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        uiScope.launch {
+            updateDB()
+        }
+    }
+
+
+    //todo update db will be called from the onStop - need to do this for the list of servers
+    suspend fun insertToDB(server: Server?, newUrl: String, theTime: Long) {
         withContext(Dispatchers.IO) {
-            if (id != null) {
-                db?.serversDataBaseDao?.updateServer(id, System.currentTimeMillis())
+            if (server != null) {
+                db?.serversDataBaseDao?.updateServer(id = server.serverId, time = theTime)
             } else {
-                db?.serversDataBaseDao?.insert(Server(url = newUrl))
+                db?.serversDataBaseDao?.insert(Server(time = theTime, url = newUrl))
+            }
+        }
+    }
+
+    suspend fun updateDB() {
+        withContext(Dispatchers.IO) {
+            if (servers != null && servers!!.isNotEmpty()) {
+                val size: Int = servers!!.size
+                var i = 0
+                while (i < size) {
+                    val server: Server? = db?.serversDataBaseDao?.getServer(servers!![i].serverId)
+                    insertToDB(server, servers!![i].url, servers!![i].time)
+                    i++
+                }
             }
         }
     }
