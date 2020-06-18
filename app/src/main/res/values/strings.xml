@@ -16,4 +16,7 @@
     <string name="left_front_lab">Front-Left</string>
     <string name="center_lab">Center</string>
     <string name="rights_lab">http://zerokol.com</string>
+    <string name="type_url">Type url…</string>
+    <string name="empty_slot">Empty slot</string>
+
 </resources>
