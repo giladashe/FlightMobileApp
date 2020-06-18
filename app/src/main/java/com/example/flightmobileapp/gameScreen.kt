@@ -63,7 +63,7 @@ class gameScreen : AppCompatActivity() {
     }
 }
 
-
+//הערה מטומטמת
 fun sendJoystickData(){
     //Connect to server:
     //todo: remove from here after testing.
