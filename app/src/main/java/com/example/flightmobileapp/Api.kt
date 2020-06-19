@@ -13,4 +13,7 @@ interface Api {
     @Headers("Content-Type: application/json")
     @POST("api/Command")
     fun postJoystickData(@Body joystickData: RequestBody): Call<ResponseBody>
+
+    @GET("/screenshot")
+    fun getScreenShot(): Call<ResponseBody>
 }

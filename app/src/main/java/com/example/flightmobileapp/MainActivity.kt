@@ -1,16 +1,21 @@
 package com.example.flightsimulatorandroidapp
 
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import com.example.flightmobileapp.R
-import com.example.flightmobileapp.Server
-import com.example.flightmobileapp.ServersDataBase
+import com.example.flightmobileapp.*
 import kotlinx.coroutines.*
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun updateButtons() {
+    private fun updateButtons() {
         if (servers != null && servers!!.isNotEmpty()) {
             val size: Int = servers!!.size
             var i = 0
@@ -75,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    suspend fun getServers(): MutableList<Server>? {
+    private suspend fun getServers(): MutableList<Server>? {
         var servers: List<Server>?
         withContext(Dispatchers.IO) {
             // db!!.serversDataBaseDao.insert(Server(url = "https://localhost:5001"))
@@ -109,9 +114,9 @@ class MainActivity : AppCompatActivity() {
 
     // suspend is not allowed.... because it doesn't override
     fun connectClicked(view: View) {
-        val text: String = urlText.text.toString()
-        if (text != "") {
-            val id: Long? = buttonHasText(text)
+        val url: String = urlText.text.toString()
+        if (url != "") {
+            val id: Long? = buttonHasText(url)
             var size: Int = servers!!.size
             var i = 0
             if (id != null) {
@@ -128,19 +133,50 @@ class MainActivity : AppCompatActivity() {
                 }
             } else {
                 biggestId += 1
-                servers?.add(0, Server(serverId = biggestId, url = text))
+                servers?.add(0, Server(serverId = biggestId, url = url))
                 size++
                 if (size > 5) {
                     servers?.removeAt(5)
                 }
             }
             updateButtons()
-            //todo connect!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! to url
+            val retrofit = Retrofit.Builder()
+                .baseUrl(url) //todo: change that will enable dynamic ip and port
+                .build();
+
+            //Defining the api for sending by the request
+            val api = retrofit.create(Api::class.java)
+
+            //Sending the request
+            val body = api.getScreenShot().enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    if (response.message() == "OK") {
+                        println("Successfully got screenshot")
+                        launchGame(url)
+                        //println(response.body()?.string())
+                    } else {
+                        println("Failed to get screenshot")
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    println("Failed to get screenshot")
+                }
+            })
         }
-        /*
-        finish();
-        startActivity(intent);*/
+
     }
+
+    private fun launchGame(url:String) {
+        val intent = Intent(this, gameScreen::class.java)
+        intent.putExtra(EXTRA_MESSAGE, url)
+        startActivity(intent)
+    }
+
+
 
     private fun buttonHasText(text: String): Long? {
         return when (text) {
@@ -166,8 +202,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    //todo update db will be called from the onStop - need to do this for the list of servers
-    suspend fun insertToDB(server: Server?, newUrl: String, theTime: Long) {
+    private suspend fun insertToDB(server: Server?, newUrl: String, theTime: Long) {
         withContext(Dispatchers.IO) {
             if (server != null) {
                 db?.serversDataBaseDao?.updateServer(id = server.serverId, time = theTime)
@@ -177,7 +212,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    suspend fun updateDB() {
+    private suspend fun updateDB() {
         withContext(Dispatchers.IO) {
             if (servers != null && servers!!.isNotEmpty()) {
                 val size: Int = servers!!.size
