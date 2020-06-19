@@ -15,6 +15,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.math.cos
+import kotlin.math.sin
 
 private var aileron: Double = 0.0
 private var rudder: Double = 0.0
@@ -22,26 +24,70 @@ private var elevator: Double = 0.0
 private var throttle: Double = 0.0
 // THROTTLE: (0, 1), AILERON: (-1,1), ELEVATOR: (-1,1), RUDDER: (-1,1)
 
+
 class gameScreen : AppCompatActivity() {
+
+    //variables
     private var angleTextView: TextView? = null
     private var powerTextView: TextView? = null
     private var directionTextView: TextView? = null
     private var joystick: JoystickView? = null
 
+    //
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game_screen)
 
+        //views
         angleTextView = findViewById(R.id.angleTextView) as? TextView
         powerTextView = findViewById(R.id.powerTextView) as? TextView
         directionTextView = findViewById(R.id.directionTextView) as? TextView
         //Referencing also other views
         joystick = findViewById(R.id.joystickView) as? JoystickView
 
+        println("try to connect")
+        val url = URL("http://10.0.2.2:52686")
+        val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
+        println("Connected?")
+
         joystick?.setOnJoystickMoveListener(object : JoystickView.OnJoystickMoveListener {
             override fun onValueChanged(angle: Int, power: Int, direction: Int) {
                 angleTextView!!.text = " " + (angle).toString() + "°"
                 powerTextView!!.text = " " + (power).toString() + "%"
+                val alpha:Int;
+
+                if (angle in 0..90) {
+                    alpha = angle
+                    aileron = (sin(Math.toRadians(alpha.toDouble())) * power)/100.0;
+                    elevator = (cos(Math.toRadians(alpha.toDouble())) * power)/100.0;
+                } //V
+
+                else if (angle in 91..180) {
+                    alpha = angle - 90
+                    aileron = (cos(Math.toRadians(alpha.toDouble())) * power)/100.0 ;
+                    elevator = ((sin(Math.toRadians(alpha.toDouble())) * power)*(-1.0/100.0));
+                } //V
+
+                else if (angle in -180..-90) {
+                    alpha = angle + 180
+                    aileron = (sin(Math.toRadians(alpha.toDouble())) * power)*(-1.0/100.0);
+                    elevator = (cos(Math.toRadians(alpha.toDouble())) * power)*(-1.0/100.0);
+                } //V
+
+                else if (angle in -90..0) {
+                    alpha = angle * (-1)
+                    aileron = (sin(Math.toRadians(alpha.toDouble())) * power)*(-1.0/100.0)
+                    elevator = (cos(Math.toRadians(alpha.toDouble())) * power)/100.0;
+                } //V
+
+                println()
+                println("\nx is:$aileron")
+                println("y is:$elevator\n")
+                        // sin($angle) * $power =
+                        //cos($angle) * $power = :"
+                println()
+                /*println(" " + (angle).toString() + "°")
+                println(" " + (power).toString() + "%")*/
                 when (direction) {
                     JoystickView.FRONT -> directionTextView!!.text = R.string.front_lab.toString()
                     JoystickView.FRONT_RIGHT -> directionTextView!!.text =
@@ -63,13 +109,8 @@ class gameScreen : AppCompatActivity() {
     }
 }
 
-//הערה מטומטמת
-fun sendJoystickData(){
-    //Connect to server:
-    //todo: remove from here after testing.
-    val url = URL("http://127.0.0.1:44394")
-    val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
 
+fun sendJoystickData() {
 
     val json: String =
         "{\"aileron\": $aileron,\n \"rudder\": $rudder,\n \"elevator\": $elevator,\n \"throttle\": $throttle\n}"
@@ -77,7 +118,8 @@ fun sendJoystickData(){
     val gson = GsonBuilder().setLenient().create();
 
     //Create the retrofit instance to issue with the network requests:
-    val retrofit = Retrofit.Builder().baseUrl("http://10.0.2.2:52238/") //todo: change that will enable dynamic ip and port
+    val retrofit = Retrofit.Builder()
+        .baseUrl("http://10.0.2.2:52238/") //todo: change that will enable dynamic ip and port
         .addConverterFactory(GsonConverterFactory.create(gson)).build();
 
     //Defining the api for sending by the request

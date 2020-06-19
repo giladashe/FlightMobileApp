@@ -19,11 +19,11 @@
         android:id="@+id/InfoLinearLayout"
         android:layout_width="254dp"
         android:layout_height="105dp"
-        android:layout_marginBottom="304dp"
+        android:layout_marginBottom="288dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintHorizontal_bias="0.844"
+        app:layout_constraintHorizontal_bias="0.669"
         app:layout_constraintStart_toStartOf="parent">
 
         <TableLayout
