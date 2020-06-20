@@ -4,7 +4,6 @@ package com.example.flightsimulatorandroidapp
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.view.View
 import android.widget.Button
@@ -19,6 +18,15 @@ import retrofit2.Retrofit
 
 
 class MainActivity : AppCompatActivity() {
+
+    //todo put screenshot code in other activity
+
+
+
+    companion object {
+        private const val maxSize = 5
+    }
+
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
@@ -31,20 +39,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var button4: Button
     private lateinit var button5: Button
     private lateinit var urlText: TextView
-    private lateinit var buttonMap: Map<Int, Button>
+    private lateinit var buttonList: List<Button>
     private var biggestId: Long = 0
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        button1 = findViewById<Button>(R.id.url1)
-        button2 = findViewById<Button>(R.id.url2)
-        button3 = findViewById<Button>(R.id.url3)
-        button4 = findViewById<Button>(R.id.url4)
-        button5 = findViewById<Button>(R.id.url5)
-        urlText = findViewById<TextView>(R.id.inputURL)
-        buttonMap = mapOf(0 to button1, 1 to button2, 2 to button3, 3 to button4, 4 to button5)
+        button1 = findViewById(R.id.url1)
+        button2 = findViewById(R.id.url2)
+        button3 = findViewById(R.id.url3)
+        button4 = findViewById(R.id.url4)
+        button5 = findViewById(R.id.url5)
+        urlText = findViewById(R.id.inputURL)
+        buttonList = listOf(button1, button2, button3, button4, button5)
         db = ServersDataBase.getInstance(context = this)
     }
 
@@ -59,31 +68,36 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateButtons() {
         if (servers != null && servers!!.isNotEmpty()) {
+            var id: Long
+            for ((i, server) in servers!!.withIndex()) {
+                buttonList[i].text = server.url
+                id = server.serverId
+                buttonList[i].id = id.toInt()
+                if (id > biggestId) {
+                    biggestId = id
+                }
+            }
+
+/*
+
             val size: Int = servers!!.size
             var i = 0
-            var id: Long
             while (i < size) {
-                buttonMap[i]!!.text = servers!![i].url
+                buttonList[i].text = servers!![i].url
                 id = servers!![i].serverId
-                buttonMap[i]!!.id = id.toInt()
+                buttonList[i].id = id.toInt()
                 if (id > biggestId) {
                     biggestId = id
                 }
                 i++
             }
-            if (size != 5) {
-                while (i < 5) {
-                    buttonMap[i]!!.text = "Empty slot"
-                    i++
-                }
-            }
+*/
         }
     }
 
     private suspend fun getServers(): MutableList<Server>? {
         var servers: List<Server>?
         withContext(Dispatchers.IO) {
-            // db!!.serversDataBaseDao.insert(Server(url = "https://localhost:5001"))
             //db?.serversDataBaseDao?.nukeTable()
             servers = db!!.serversDataBaseDao.getFirstFive()
         }
@@ -92,63 +106,71 @@ class MainActivity : AppCompatActivity() {
 
 
     fun urlButtonClicked(view: View) {
-        when (view.id) {
-            button1.id -> if (button1.text != "Empty slot") {
-                urlText.text = button1.text
+        var b: Button? = null
+        for (button in buttonList) {
+            if (view.id == button.id) {
+                b = button
+                break
             }
-            button2.id -> if (button2.text != "Empty slot") {
-                urlText.text = button2.text
-            }
-            button3.id -> if (button3.text != "Empty slot") {
-                urlText.text = button3.text
-            }
-            button4.id -> if (button4.text != "Empty slot") {
-                urlText.text = button4.text
-            }
-            button5.id -> if (button5.text != "Empty slot") {
-                urlText.text = button5.text
+        }
+        if (b != null && b.text.isNotEmpty()) {
+            urlText.text = b.text
+        }
+    }
+
+
+    fun connectClicked(view: View) {
+        val url: String = urlText.text.toString()
+        if (url.isNotEmpty()) {
+            addServerToList(url)
+            updateButtons()
+            checkIfCanConnect(url)
+        }
+    }
+
+    private fun addServerToList(url: String){
+        val id: Long? = buttonHasText(url)
+        var size: Int = servers!!.size
+        if (id != null) {
+            updateServersList(id)
+        } else {
+            biggestId += 1
+            servers?.add(0, Server(serverId = biggestId, url = url))
+            size++
+            //todo make variable max size
+            if (size > maxSize) {
+                servers?.removeAt(maxSize)
             }
         }
     }
 
 
-    // suspend is not allowed.... because it doesn't override
-    fun connectClicked(view: View) {
-        val url: String = urlText.text.toString()
-        if (url != "") {
-            val id: Long? = buttonHasText(url)
-            var size: Int = servers!!.size
-            var i = 0
-            if (id != null) {
-                while (i < size) {
-                    if (servers!![i].serverId == id) {
-                        val server: Server? = servers?.removeAt(i)
-                        if (servers != null && server != null) {
-                            server.time = System.currentTimeMillis()
-                            servers?.add(0, server)
-                        }
-                        break
-                    }
-                    i++
+    private fun updateServersList(id:Long?){
+        if(id==null)
+            return
+
+        for(server in servers!!){
+            if (server.serverId == id) {
+                val removed: Boolean? = servers?.remove(server)
+                if (servers != null && removed!!) {
+                    server.time = System.currentTimeMillis()
+                    servers?.add(0, server)
                 }
-            } else {
-                biggestId += 1
-                servers?.add(0, Server(serverId = biggestId, url = url))
-                size++
-                if (size > 5) {
-                    servers?.removeAt(5)
-                }
+                break
             }
-            updateButtons()
-            val retrofit = Retrofit.Builder()
-                .baseUrl(url) //todo: change that will enable dynamic ip and port
-                .build();
+        }
+    }
+
+
+    private fun checkIfCanConnect(url: String) {
+        try {
+            val retrofit = Retrofit.Builder().baseUrl(url).build();
 
             //Defining the api for sending by the request
             val api = retrofit.create(Api::class.java)
 
             //Sending the request
-            val body = api.getScreenShot().enqueue(object : Callback<ResponseBody> {
+            api.getScreenShot().enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
@@ -158,40 +180,38 @@ class MainActivity : AppCompatActivity() {
                         launchGame(url)
                         //println(response.body()?.string())
                     } else {
-                        println("Failed to get screenshot")
+                        //todo write "Error connecting"
+                        println("Failed to get screenshot - on response")
+
                     }
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    println("Failed to get screenshot")
+                    //todo write "Error connecting"
+                    println("Failed to get screenshot - on failure")
                 }
             })
+        } catch (e: Exception) {
+            //todo write "Error connecting"
+            println("Failed to get screenshot - invalid url")
         }
-
     }
 
-    private fun launchGame(url:String) {
+
+    private fun launchGame(url: String) {
         val intent = Intent(this, gameScreen::class.java)
         intent.putExtra(EXTRA_MESSAGE, url)
         startActivity(intent)
     }
 
 
-
     private fun buttonHasText(text: String): Long? {
-        return when (text) {
-            button1.text -> servers?.get(0)?.serverId
-            button2.text -> servers?.get(1)?.serverId
-            button3.text -> servers?.get(2)?.serverId
-            button4.text -> servers?.get(3)?.serverId
-            button5.text -> servers?.get(4)?.serverId
-            else -> null
+        for ((i, button) in buttonList.withIndex()) {
+            if (text == button.text) {
+                return servers?.get(i)?.serverId
+            }
         }
-    }
-
-
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
+        return null
     }
 
     override fun onStop() {
@@ -215,16 +235,15 @@ class MainActivity : AppCompatActivity() {
     private suspend fun updateDB() {
         withContext(Dispatchers.IO) {
             if (servers != null && servers!!.isNotEmpty()) {
-                val size: Int = servers!!.size
-                var i = 0
-                while (i < size) {
-                    val server: Server? = db?.serversDataBaseDao?.getServer(servers!![i].serverId)
-                    insertToDB(server, servers!![i].url, servers!![i].time)
-                    i++
+                for (server in servers!!) {
+                    val serverInDB: Server? = db?.serversDataBaseDao?.getServer(server.serverId)
+                    insertToDB(serverInDB, server.url, server.time)
                 }
             }
         }
     }
+
+
 }
 
 
