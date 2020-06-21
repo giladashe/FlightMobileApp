@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.flightsimulatorandroidapp.MainActivity
 import com.google.gson.GsonBuilder
 import com.zerokol.views.joystickView.JoystickView
 import okhttp3.MediaType
@@ -15,8 +14,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlin.math.cos
 import kotlin.math.sin
 

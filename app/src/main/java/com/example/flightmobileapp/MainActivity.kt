@@ -1,14 +1,14 @@
-package com.example.flightsimulatorandroidapp
+package com.example.flightmobileapp
 
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import com.example.flightmobileapp.*
 import kotlinx.coroutines.*
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -177,6 +177,12 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     if (response.message() == "OK") {
                         println("Successfully got screenshot")
+                        /*val imageStream = response.body()?.byteStream()
+                        val theImage = BitmapFactory.decodeStream(imageStream)
+                        runOnUiThread {
+                            //todo change to the id of imageview
+                            // X.setImageBitmap(theImage)
+                        }*/
                         launchGame(url)
                         //println(response.body()?.string())
                     } else {
