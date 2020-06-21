@@ -1,6 +1,7 @@
 package com.example.flightmobileapp
 
 import android.os.Bundle
+import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
@@ -13,8 +14,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -32,22 +31,22 @@ class gameScreen : AppCompatActivity() {
     private var powerTextView: TextView? = null
     private var directionTextView: TextView? = null
     private var joystick: JoystickView? = null
+    private var urlAddress: String? = null
 
     //
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game_screen)
-
+        urlAddress = intent.getStringExtra(EXTRA_MESSAGE)
+        if (urlAddress == null) {
+            finish()
+        }
         //views
         angleTextView = findViewById(R.id.angleTextView) as? TextView
         powerTextView = findViewById(R.id.powerTextView) as? TextView
         directionTextView = findViewById(R.id.directionTextView) as? TextView
         //Referencing also other views
         joystick = findViewById(R.id.joystickView) as? JoystickView
-
-        //connection
-        val url = URL("http://10.0.2.2:52686")
-        val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
 
         joystick?.setOnJoystickMoveListener(object : JoystickView.OnJoystickMoveListener {
             override fun onValueChanged(angle: Int, power: Int, direction: Int) {
@@ -82,8 +81,8 @@ class gameScreen : AppCompatActivity() {
                 println()
                 println("\nx is:$aileron")
                 println("y is:$elevator\n")
-                        // sin($angle) * $power =
-                        //cos($angle) * $power = :"
+                // sin($angle) * $power =
+                //cos($angle) * $power = :"
                 println()
                 /*println(" " + (angle).toString() + "°")
                 println(" " + (power).toString() + "%")*/
@@ -106,33 +105,32 @@ class gameScreen : AppCompatActivity() {
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL)
     }
-}
 
 
-fun sendJoystickData() {
+    fun sendJoystickData() {
 
-    val json: String =
-        "{\"aileron\": $aileron,\n \"rudder\": $rudder,\n \"elevator\": $elevator,\n \"throttle\": $throttle\n}"
-    val rb: RequestBody = RequestBody.create(MediaType.parse("application/json"), json)
-    val gson = GsonBuilder().setLenient().create();
+        val json =
+            "{\"aileron\": $aileron,\n \"rudder\": $rudder,\n \"elevator\": $elevator,\n \"throttle\": $throttle\n}"
+        val rb: RequestBody = RequestBody.create(MediaType.parse("application/json"), json)
+        val gson = GsonBuilder().setLenient().create();
 
-    //Create the retrofit instance to issue with the network requests:
-    val retrofit = Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:52238/") //todo: change that will enable dynamic ip and port
-        .addConverterFactory(GsonConverterFactory.create(gson)).build();
+        //Create the retrofit instance to issue with the network requests:
+        val retrofit = Retrofit.Builder()
+            .baseUrl(urlAddress.toString()) //todo: change that will enable dynamic ip and port
+            .addConverterFactory(GsonConverterFactory.create(gson)).build();
 
-    //Defining the api for sending by the request
-    val api = retrofit.create(Api::class.java)
+        //Defining the api for sending by the request
+        val api = retrofit.create(Api::class.java)
 
-    //Sending the request
-    val body = api.postJoystickData(rb).enqueue(object : Callback<ResponseBody> {
-        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-            println("Successfully posted joystick data to controller");
-        }
+        //Sending the request
+        api.postJoystickData(rb).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                println("Successfully posted joystick data to controller");
+            }
 
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-            println("Failed to post joystick data to controller");
-        }
-    })
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                println("Failed to post joystick data to controller");
+            }
+        })
 
 }

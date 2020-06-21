@@ -5,77 +5,77 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/plane_in_clouds"
-    tools:context="com.example.flightsimulatorandroidapp.MainActivity">
+    tools:context=".MainActivity">
 
     <Button
         android:id="@+id/url1"
         android:layout_width="297dp"
         android:layout_height="50dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="25dp"
         android:background="@color/colorAccent"
+        android:hint="@string/empty_slot"
         android:onClick="urlButtonClicked"
-        android:text=""
         android:textAllCaps="false"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="@string/empty_slot" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/url2"
         android:layout_width="297dp"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:background="@color/colorAccent"
+        android:hint="@string/empty_slot"
         android:onClick="urlButtonClicked"
-        android:text=""
         android:textAllCaps="false"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url1"
-        tools:text="@string/empty_slot" />
+        app:layout_constraintTop_toBottomOf="@+id/url1" />
 
     <Button
         android:id="@+id/url3"
         android:layout_width="297dp"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:background="@color/colorAccent"
+        android:hint="@string/empty_slot"
         android:onClick="urlButtonClicked"
-        android:text=""
         android:textAllCaps="false"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url2"
-        tools:text="@string/empty_slot" />
+        app:layout_constraintTop_toBottomOf="@+id/url2" />
 
     <Button
         android:id="@+id/url4"
         android:layout_width="297dp"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:background="@color/colorAccent"
+        android:hint="@string/empty_slot"
         android:onClick="urlButtonClicked"
-        android:text=""
         android:textAllCaps="false"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url3"
-        tools:text="@string/empty_slot" />
+        app:layout_constraintTop_toBottomOf="@+id/url3" />
 
     <Button
         android:id="@+id/url5"
         android:layout_width="297dp"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:background="@color/colorAccent"
+        android:hint="@string/empty_slot"
         android:onClick="urlButtonClicked"
-        android:text=""
         android:textAllCaps="false"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/url4"
-        tools:text="@string/empty_slot" />
+        app:layout_constraintTop_toBottomOf="@+id/url4" />
 
     <EditText
         android:id="@+id/inputURL"
@@ -104,6 +104,7 @@
         android:onClick="connectClicked"
         android:text="@string/connect"
         android:textAllCaps="false"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.462"
         app:layout_constraintStart_toEndOf="@+id/inputURL"

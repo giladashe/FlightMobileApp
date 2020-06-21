@@ -13,7 +13,6 @@ abstract class ServersDataBase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: ServersDataBase? = null
-        private const val size = 5
         fun getInstance(context: Context): ServersDataBase? {
             synchronized(this) {
                 var instance = INSTANCE
