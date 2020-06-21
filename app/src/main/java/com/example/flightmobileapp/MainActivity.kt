@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     //todo put screenshot code in other activity
 
 
-
     companion object {
         private const val maxSize = 5
     }
@@ -41,7 +40,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var urlText: TextView
     private lateinit var buttonList: List<Button>
     private var biggestId: Long = 0
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,7 +126,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addServerToList(url: String){
+    private fun addServerToList(url: String) {
         val id: Long? = buttonHasText(url)
         var size: Int = servers!!.size
         if (id != null) {
@@ -145,11 +143,11 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun updateServersList(id:Long?){
-        if(id==null)
+    private fun updateServersList(id: Long?) {
+        if (id == null)
             return
 
-        for(server in servers!!){
+        for (server in servers!!) {
             if (server.serverId == id) {
                 val removed: Boolean? = servers?.remove(server)
                 if (servers != null && removed!!) {
