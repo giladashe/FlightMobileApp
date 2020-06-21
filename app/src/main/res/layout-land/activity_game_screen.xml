@@ -8,14 +8,15 @@
 
 
     <SeekBar
-        android:id="@+id/seekBar4"
+        android:id="@+id/throttleSeekBar_land"
         android:layout_width="235dp"
         android:layout_height="233dp"
         android:rotation="270"
-        app:layout_constraintBottom_toBottomOf="@+id/joystickView"
-        app:layout_constraintEnd_toStartOf="@+id/joystickView"
+        app:layout_constraintBottom_toBottomOf="@+id/joystickView_land"
+        app:layout_constraintEnd_toStartOf="@+id/joystickView_land"
+        app:layout_constraintHorizontal_bias="0.441"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/joystickView"
+        app:layout_constraintTop_toTopOf="@+id/joystickView_land"
         app:layout_constraintVertical_bias="1.0" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -26,86 +27,8 @@
         app:layout_constraintGuide_begin="357dp" />
 
 
-    <LinearLayout
-        android:id="@+id/InfoLinearLayout"
-        android:layout_width="254dp"
-        android:layout_height="105dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TableLayout
-            android:id="@+id/tableLayout1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <TableRow
-                android:id="@+id/tableRow1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/angletextViewLab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/angle_lab"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <TextView
-                    android:id="@+id/angleTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/none"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/powerTextViewLab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/power_lab"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <TextView
-                    android:id="@+id/powerTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/none"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-            </TableRow>
-
-            <TableRow
-                android:id="@+id/tableRow3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/directionTextViewLab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/direction_lab"
-                    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                <TextView
-                    android:id="@+id/directionTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/none"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-            </TableRow>
-        </TableLayout>
-
-    </LinearLayout>
-
     <com.zerokol.views.joystickView.JoystickView
-        android:id="@+id/joystickView"
+        android:id="@+id/joystickView_land"
         android:layout_width="331dp"
         android:layout_height="236dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -116,12 +39,88 @@
         app:layout_constraintVertical_bias="0.497" />
 
     <SeekBar
-        android:id="@+id/seekBar3"
+        android:id="@+id/rudderSeekBar_land"
         android:layout_width="238dp"
         android:layout_height="28dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/joystickView"
-        app:layout_constraintStart_toStartOf="@+id/joystickView"
-        app:layout_constraintTop_toBottomOf="@+id/joystickView" />
+        app:layout_constraintEnd_toEndOf="@+id/joystickView_land"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/joystickView_land"
+        app:layout_constraintTop_toBottomOf="@+id/joystickView_land"
+        app:layout_constraintVertical_bias="0.35" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="55dp"
+        android:layout_height="40dp"
+        android:rotation="270"
+        android:text="Throttle"
+        app:layout_constraintBottom_toBottomOf="@+id/throttleSeekBar_land"
+        app:layout_constraintEnd_toStartOf="@+id/joystickView_land"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/throttleSeekBar_land"
+        app:layout_constraintVertical_bias="0.492" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="20dp"
+        android:text="Rudder"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/rudderSeekBar_land"
+        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintStart_toStartOf="@+id/rudderSeekBar_land"
+        app:layout_constraintTop_toBottomOf="@+id/rudderSeekBar_land"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="88dp"
+        android:layout_height="25dp"
+        android:rotation="-90"
+        android:text="⇚ Elevator ⇛"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/joystickView_land"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⇚ Aileron ⇛"
+        app:layout_constraintBottom_toTopOf="@+id/joystickView_land"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="0.507"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/throttleTextView_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/throttleSeekBar_land"
+        app:layout_constraintEnd_toStartOf="@+id/joystickView_land"
+        app:layout_constraintHorizontal_bias="0.619"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/rudderTextView_land"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="@+id/rudderSeekBar_land"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="0.21"
+        app:layout_constraintStart_toEndOf="@+id/rudderSeekBar_land"
+        app:layout_constraintTop_toTopOf="@+id/rudderSeekBar_land"
+        app:layout_constraintVertical_bias="0.45" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
