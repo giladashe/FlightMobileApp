@@ -13,25 +13,39 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="364dp" />
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
+    <com.zerokol.views.joystickView.JoystickView
+        android:id="@+id/joystickView2"
+        android:layout_width="224dp"
+        android:layout_height="226dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        app:layout_constraintVertical_bias="0.055" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="240dp"
+        android:layout_height="48dp"
+
+        android:layout_marginTop="28dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/joystickView2"
+        app:layout_constraintStart_toStartOf="@+id/joystickView2"
+        app:layout_constraintTop_toBottomOf="@+id/joystickView2"
+        app:layout_constraintVertical_bias="0.84" />
+
+    <SeekBar
+        android:id="@+id/seekBar2"
+        android:layout_width="240dp"
+        android:layout_height="48dp"
+        android:rotation="270"
+        app:layout_constraintBottom_toBottomOf="@+id/joystickView2"
+        app:layout_constraintEnd_toStartOf="@+id/joystickView2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/joystickView2"
+        app:layout_constraintVertical_bias="0.385" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

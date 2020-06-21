@@ -45,10 +45,9 @@ class gameScreen : AppCompatActivity() {
         //Referencing also other views
         joystick = findViewById(R.id.joystickView) as? JoystickView
 
-        println("try to connect")
+        //connection
         val url = URL("http://10.0.2.2:52686")
         val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
-        println("Connected?")
 
         joystick?.setOnJoystickMoveListener(object : JoystickView.OnJoystickMoveListener {
             override fun onValueChanged(angle: Int, power: Int, direction: Int) {

@@ -7,6 +7,17 @@
     tools:context=".gameScreen">
 
 
+    <SeekBar
+        android:id="@+id/seekBar4"
+        android:layout_width="235dp"
+        android:layout_height="233dp"
+        android:rotation="270"
+        app:layout_constraintBottom_toBottomOf="@+id/joystickView"
+        app:layout_constraintEnd_toStartOf="@+id/joystickView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/joystickView"
+        app:layout_constraintVertical_bias="1.0" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
@@ -19,12 +30,11 @@
         android:id="@+id/InfoLinearLayout"
         android:layout_width="254dp"
         android:layout_height="105dp"
-        android:layout_marginBottom="288dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintHorizontal_bias="0.669"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TableLayout
             android:id="@+id/tableLayout1"
@@ -100,21 +110,18 @@
         android:layout_height="236dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintHorizontal_bias="0.719"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.6" />
+        app:layout_constraintVertical_bias="0.497" />
 
     <SeekBar
         android:id="@+id/seekBar3"
         android:layout_width="238dp"
         android:layout_height="28dp"
-        android:layout_marginStart="87dp"
-        android:layout_marginLeft="87dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/joystickView"
+        app:layout_constraintStart_toStartOf="@+id/joystickView"
         app:layout_constraintTop_toBottomOf="@+id/joystickView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
