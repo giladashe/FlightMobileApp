@@ -123,5 +123,16 @@
         app:layout_constraintTop_toTopOf="@+id/rudderSeekBar"
         app:layout_constraintVertical_bias="0.448" />
 
+    <ImageView
+        android:id="@+id/imageSimulator"
+        android:layout_width="445dp"
+        android:layout_height="366dp"
+        android:layout_marginTop="4dp"
+        android:contentDescription="@string/image_decription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

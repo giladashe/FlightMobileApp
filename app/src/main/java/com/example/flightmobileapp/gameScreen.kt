@@ -1,13 +1,18 @@
 package com.example.flightmobileapp
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.widget.SeekBar
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import com.zerokol.views.joystickView.JoystickView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.android.synthetic.main.activity_game_screen.*
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -39,6 +44,7 @@ class gameScreen : AppCompatActivity() {
     private var directionTextView: TextView? = null*/
     private var joystick: JoystickView? = null
     private var urlAddress: String? = null
+    private var imageFromSimulator: ImageView? = null
     private var rudderSeekBar: SeekBar? = null
     private var throttleSeekBar: SeekBar? = null
     private var rudderTextView: TextView? = null
@@ -58,6 +64,8 @@ class gameScreen : AppCompatActivity() {
         powerTextView = findViewById(R.id.powerTextView) as? TextView
         directionTextView = findViewById(R.id.directionTextView) as? TextView*/
         //Referencing also other views
+
+
 
 
         joystick?.setOnJoystickMoveListener(object : JoystickView.OnJoystickMoveListener {
@@ -133,6 +141,13 @@ class gameScreen : AppCompatActivity() {
         throttleSeekBar?.setOnSeekBarChangeListener(throttleChanged)
     }
 
+    override fun onStart() {
+        super.onStart()
+        getImage(urlAddress)
+    }
+
+
+
     private fun changedAtLeastInOnePercent(): Boolean {
         return (aileron > 1.01 * prevAileron) || (aileron < 0.99 * prevAileron)
                 || (rudder > 1.01 * prevRudder) || (rudder < 0.99 * prevRudder)
@@ -151,6 +166,10 @@ class gameScreen : AppCompatActivity() {
     //init view elements (according to screen mode)
     private fun initViewElements(savedInstanceState: Bundle?) {
 
+        imageFromSimulator = findViewById(R.id.imageSimulatorLand) as? ImageView
+        if (imageFromSimulator == null) {
+            imageFromSimulator = findViewById(R.id.imageSimulator) as? ImageView
+        }
 
         rudderSeekBar = findViewById(R.id.rudderSeekBar)
         if (rudderSeekBar == null) {
@@ -225,6 +244,62 @@ class gameScreen : AppCompatActivity() {
         }
 
     }
+    private fun getImage(url: String?) {
+        if (url == null) {
+            return
+        }
+        try {
+            val retrofit = Retrofit.Builder().baseUrl(url).build();
+
+            //Defining the api for sending by the request
+            val api = retrofit.create(Api::class.java)
+            CoroutineScope(Dispatchers.IO).launch {
+                //Sending the request
+                /*while (true) {
+                    delay(250)*/
+                api.getScreenShot().enqueue(object : Callback<ResponseBody> {
+                    override fun onResponse(
+                        call: Call<ResponseBody>,
+                        response: Response<ResponseBody>
+                    ) {
+                        if (response.message() == "OK") {
+                            println("Successfully got screenshot")
+                            showImage(response)
+                        } else {
+                            //todo write "Error connecting"
+                            println("Failed to get screenshot - on response")
+
+                        }
+                    }
+
+                    override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                        //todo write "Error connecting"
+                        println("Failed to get screenshot - on failure")
+                    }
+                })
+            }
+            //}
+        } catch (e: Exception) {
+            //todo write "Error connecting"
+            println("Failed to get screenshot - invalid url")
+        }
+    }
+
+    private fun showImage(response: Response<ResponseBody>) {
+        try {
+            val imageStream = response.body()?.byteStream()
+            val theImage = BitmapFactory.decodeStream(imageStream)
+            /*val bytes = response.body()?.bytes()
+            val theImage = bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }*/
+            println("the image is:##########################$theImage")
+            runOnUiThread {
+                imageFromSimulator?.setImageBitmap(theImage)
+            }
+        } catch (e: Exception) {
+            println(e.message)
+        }
+
+    }
 
     fun sendJoystickData() {
         val json =
@@ -234,7 +309,7 @@ class gameScreen : AppCompatActivity() {
 
         //Create the retrofit instance to issue with the network requests:
         val retrofit = Retrofit.Builder()
-            .baseUrl(urlAddress.toString()) //todo: change that will enable dynamic ip and port
+            .baseUrl(urlAddress.toString())
             .addConverterFactory(GsonConverterFactory.create(gson)).build();
 
         //Defining the api for sending by the request

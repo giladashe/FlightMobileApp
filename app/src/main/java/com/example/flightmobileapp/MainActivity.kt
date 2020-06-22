@@ -6,9 +6,11 @@ import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
+import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import kotlinx.coroutines.*
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -24,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val maxSize = 5
+        private const val httpStr: String = "http://"
     }
 
     private val viewModelJob = Job()
@@ -162,7 +165,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkIfCanConnect(url: String) {
         try {
-            val retrofit = Retrofit.Builder().baseUrl(url).build();
+            var formattedUrl:String = url
+            if(!url.startsWith(httpStr)){
+                formattedUrl = "$httpStr$url"
+            }
+            val retrofit = Retrofit.Builder().baseUrl(formattedUrl).build();
 
             //Defining the api for sending by the request
             val api = retrofit.create(Api::class.java)
@@ -181,7 +188,7 @@ class MainActivity : AppCompatActivity() {
                             //todo change to the id of imageview
                             // X.setImageBitmap(theImage)
                         }*/
-                        launchGame(url)
+                        launchGame(formattedUrl)
                         //println(response.body()?.string())
                     } else {
                         //todo write "Error connecting"
@@ -192,12 +199,24 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                     //todo write "Error connecting"
+                    val text = "Failed to get screenshot - invalid url"
+                    val duration = Toast.LENGTH_SHORT
+
+                    val toast = Toast.makeText(applicationContext, text, duration)
+                    toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 250)
+                    toast.show()
                     println("Failed to get screenshot - on failure")
                 }
             })
         } catch (e: Exception) {
             //todo write "Error connecting"
-            println("Failed to get screenshot - invalid url")
+            val text = "Failed to get screenshot - invalid url"
+            val duration = Toast.LENGTH_SHORT
+
+            val toast = Toast.makeText(applicationContext, text, duration)
+            toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 250)
+            toast.show()
+            //println("Failed to get screenshot - invalid url")
         }
     }
 

@@ -18,5 +18,6 @@
     <string name="rights_lab">http://zerokol.com</string>
     <string name="type_url">Type url…</string>
     <string name="empty_slot">Empty slot</string>
+    <string name="image_decription">simulator\'s image</string>
 
 </resources>

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".gameScreen">
 
-
     <SeekBar
         android:id="@+id/throttleSeekBar_land"
         android:layout_width="235dp"
@@ -122,5 +121,16 @@
         app:layout_constraintStart_toEndOf="@+id/rudderSeekBar_land"
         app:layout_constraintTop_toTopOf="@+id/rudderSeekBar_land"
         app:layout_constraintVertical_bias="0.45" />
+
+    <ImageView
+        android:id="@+id/imageSimulatorLand"
+        android:layout_width="372dp"
+        android:layout_height="414dp"
+        android:contentDescription="@string/image_decription"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
