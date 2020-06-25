@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
+import android.view.Gravity
 import android.widget.SeekBar
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,6 +14,7 @@ import com.zerokol.views.joystickView.JoystickView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_game_screen.*
 import kotlinx.coroutines.delay
 import okhttp3.MediaType
@@ -23,6 +25,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -34,10 +37,10 @@ class gameScreen : AppCompatActivity() {
     private var rudder: Double = 0.0
     private var elevator: Double = 0.0
     private var throttle: Double = 0.0
-    private var prevAileron: Double = 0.01
-    private var prevRudder: Double = 0.01
-    private var prevElevator: Double = 0.01
-    private var prevThrottle: Double = 0.01
+    private var prevAileron: Double = 0.0
+    private var prevRudder: Double = 0.0
+    private var prevElevator: Double = 0.0
+    private var prevThrottle: Double = 0.0
 
     // THROTTLE: (0, 1), AILERON: (-1,1), ELEVATOR: (-1,1), RUDDER: (-1,1)
     /*private var angleTextView: TextView? = null
@@ -62,37 +65,15 @@ class gameScreen : AppCompatActivity() {
         }
         initViewElements(savedInstanceState)
 
-/*        angleTextView = findViewById(R.id.angleTextView) as? TextView
-        powerTextView = findViewById(R.id.powerTextView) as? TextView
-        directionTextView = findViewById(R.id.directionTextView) as? TextView*/
-        //Referencing also other views
-
 
         joystick?.setOnJoystickMoveListener(object : JoystickView.OnJoystickMoveListener {
             override fun onValueChanged(angle: Int, power: Int, direction: Int) {
-/*                angleTextView!!.text = " " + (angle).toString() + "°"
-                powerTextView!!.text = " " + (power).toString() + "%"*/
                 determineAileronAndElevator(angle, power)
-/*                when (direction) {
-                    JoystickView.FRONT -> directionTextView!!.text = R.string.front_lab.toString()
-                    JoystickView.FRONT_RIGHT -> directionTextView!!.text =
-                        R.string.front_right_lab.toString()
-                    JoystickView.RIGHT -> directionTextView!!.text = R.string.right_lab.toString()
-                    JoystickView.RIGHT_BOTTOM -> directionTextView!!.text =
-                        R.string.right_bottom_lab.toString()
-                    JoystickView.BOTTOM -> directionTextView!!.text = R.string.bottom_lab.toString()
-                    JoystickView.BOTTOM_LEFT -> directionTextView!!.text =
-                        R.string.bottom_left_lab.toString()
-                    JoystickView.LEFT -> directionTextView!!.text = R.string.left_lab.toString()
-                    JoystickView.LEFT_FRONT -> directionTextView!!.text =
-                        R.string.left_front_lab.toString()
-                    else -> directionTextView!!.text = R.string.center_lab.toString()
-                }*/
                 if (changedAtLeastInOnePercent()) {
                     sendWheelsData();
                 }
             }
-        }, JoystickView.DEFAULT_LOOP_INTERVAL)
+        }, 100)
 
 
         //For rudder seek bar
@@ -149,12 +130,25 @@ class gameScreen : AppCompatActivity() {
 
     //!!!!!!!!!!!!!!!!!!!!!!! Stopped here - don't let me to put breakpoint !!!!!!!!!!!!!!!!!!!!!
     private fun changedAtLeastInOnePercent(): Boolean {
-        val upperLimit = 20.0 //todo: change me to 1 precent
-        val lowerLimit = 0.9
-        return (aileron > upperLimit * prevAileron) || (aileron < lowerLimit * prevAileron)
-                || (rudder > upperLimit * prevRudder) || (rudder < lowerLimit * prevRudder)
-                || (throttle > upperLimit * prevThrottle) || (throttle < lowerLimit * prevThrottle)
-                || (elevator > upperLimit * prevElevator) || (elevator < lowerLimit * prevElevator)
+
+//        println("=============================================")
+//        println("=============================================")
+//        println("prevAileron=$prevAileron ; aileron=$aileron")
+//        println("prevElevator=$prevElevator ; elevator=$elevator")
+//        println("prevRudder=$prevRudder ; rudder=$rudder")
+//        println("prevThrottle=$prevThrottle ; throttle=$throttle")
+//        println("=============================================")
+
+        val offset = 0.01
+        return (abs(aileron - prevAileron) >= offset
+                || abs(rudder - prevRudder) >= offset
+                || abs(throttle - prevThrottle) >= offset
+                || abs(elevator - prevElevator) >= offset)
+
+//        return ((aileron > upperLimit * prevAileron) || (aileron < lowerLimit * prevAileron)
+//                || (rudder > upperLimit * prevRudder) || (rudder < lowerLimit * prevRudder)
+//                || (throttle > upperLimit * prevThrottle) || (throttle < lowerLimit * prevThrottle)
+//                || (elevator > upperLimit * prevElevator) || (elevator < lowerLimit * prevElevator))
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
@@ -266,7 +260,7 @@ class gameScreen : AppCompatActivity() {
                             response: Response<ResponseBody>
                         ) {
                             if (response.message() == "OK") {
-                                println("Successfully got screenshot")
+                                //println("Successfully got screenshot")
                                 showImage(response)
                             } else {
                                 //todo write "Error connecting"
@@ -307,7 +301,7 @@ class gameScreen : AppCompatActivity() {
             val theImage = BitmapFactory.decodeStream(imageStream)
             /*val bytes = response.body()?.bytes()
             val theImage = bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }*/
-            println("the image is:##########################$theImage")
+            //println("the image is:##########################$theImage")
             runOnUiThread {
                 imageFromSimulator?.setImageBitmap(theImage)
             }
@@ -324,28 +318,43 @@ class gameScreen : AppCompatActivity() {
         val gson = GsonBuilder().setLenient().create();
 
         //Create the retrofit instance to issue with the network requests:
-        val retrofit = Retrofit.Builder()
-            .baseUrl(urlAddress.toString())
-            .addConverterFactory(GsonConverterFactory.create(gson)).build();
+        try {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(urlAddress.toString())
+                .addConverterFactory(GsonConverterFactory.create(gson)).build();
 
-        //Defining the api for sending by the request
-        val api = retrofit.create(Api::class.java)
 
-        //Sending the request
-        api.postJoystickData(rb).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                println("Successfully posted joystick data to controller");
-                prevAileron =  initPrev(aileron);
-                prevElevator = initPrev(elevator);
-                prevRudder = initPrev(rudder);
-                prevThrottle = initPrev(throttle);
-                println(json)
-            }
+            //Defining the api for sending by the request
+            val api = retrofit.create(Api::class.java)
 
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                println("Failed to post joystick data to controller");
-            }
-        })
+            //Sending the request
+            api.postJoystickData(rb).enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    println("Successfully posted joystick data to controller");
+                    prevAileron = aileron;
+                    prevElevator = elevator;
+                    prevRudder = rudder;
+                    prevThrottle = throttle;
+                    println(json)
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    println("Failed to post joystick data to controller");
+                }
+            })
+        } catch (e: Exception) {
+            toastMessage("Error occurred, check the URL and try again");
+        }
+    }
+
+    private fun toastMessage(messageText: String) {
+        val duration = Toast.LENGTH_SHORT
+        val toast = Toast.makeText(applicationContext, messageText, duration)
+        toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 250)
+        toast.show()
     }
 
     /*
@@ -353,10 +362,10 @@ class gameScreen : AppCompatActivity() {
     * if value changed in 1 percent when comparing this to prev value it always returns false
     *
     * */
-    private fun initPrev(current: Double): Double {
-        if(current == 0.0){
-            return 0.01
-        }
-        return current
-    }
+//    private fun initPrev(current: Double): Double {
+//        if(current == 0.0){
+//            return 0.01
+//        }
+//        return current
+//    }
 }
