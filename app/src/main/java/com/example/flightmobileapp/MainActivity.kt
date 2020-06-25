@@ -1,8 +1,8 @@
 package com.example.flightmobileapp
 
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.AlarmClock.EXTRA_MESSAGE
@@ -21,18 +21,25 @@ import retrofit2.Retrofit
 
 class MainActivity : AppCompatActivity() {
 
-    //todo put screenshot code in other activity
-
-
+    // We use the toastMessage here and in the game screen
     companion object {
-        private const val maxSize = 5
+        private const val maxSizeUrls = 5
         private const val httpStr: String = "http://"
+
+        //toast message to the screen
+        fun toastMessage(context: Context, messageText: String) {
+            val duration = Toast.LENGTH_SHORT
+            val toast = Toast.makeText(context, messageText, duration)
+            //todo where????
+            toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 250)
+            toast.show()
+        }
     }
 
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    // override fun on
+    // buttons, db and servers
     private var db: ServersDataBase? = null
     private var servers: MutableList<Server>? = null
     private lateinit var button1: Button
@@ -44,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonList: List<Button>
     private var biggestId: Long = 0
 
-
+    //creates the ui elements and put them in variables
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -60,13 +67,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        //get servers from db and update the buttons
         uiScope.launch {
             servers = getServers()
             updateButtons()
         }
-
     }
 
+    // Put urls of servers on the buttons.
     private fun updateButtons() {
         if (servers != null && servers!!.isNotEmpty()) {
             var id: Long
@@ -74,28 +82,15 @@ class MainActivity : AppCompatActivity() {
                 buttonList[i].text = server.url
                 id = server.serverId
                 buttonList[i].id = id.toInt()
+                //maintain biggest id to give unique id for user's input server
                 if (id > biggestId) {
                     biggestId = id
                 }
             }
-
-/*
-
-            val size: Int = servers!!.size
-            var i = 0
-            while (i < size) {
-                buttonList[i].text = servers!![i].url
-                id = servers!![i].serverId
-                buttonList[i].id = id.toInt()
-                if (id > biggestId) {
-                    biggestId = id
-                }
-                i++
-            }
-*/
         }
     }
 
+    // Get 5 servers from DB that are most recently used.
     private suspend fun getServers(): MutableList<Server>? {
         var servers: List<Server>?
         withContext(Dispatchers.IO) {
@@ -105,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         return servers?.toMutableList()
     }
 
-
+    // If url in button is not empty it copies it to the url text box at the bottom.
     fun urlButtonClicked(view: View) {
         var b: Button? = null
         for (button in buttonList) {
@@ -119,7 +114,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    // Connect button was pressed - if there is url in the input box it updates the servers
+    // list, updates the buttons and tries to connect.
     fun connectClicked(view: View) {
         val url: String = urlText.text.toString()
         if (url.isNotEmpty()) {
@@ -129,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Add new server to servers list with unique id (biggest id +1).
     private fun addServerToList(url: String) {
         val id: Long? = buttonHasText(url)
         var size: Int = servers!!.size
@@ -139,13 +136,13 @@ class MainActivity : AppCompatActivity() {
             servers?.add(0, Server(serverId = biggestId, url = url))
             size++
             //todo make variable max size
-            if (size > maxSize) {
-                servers?.removeAt(maxSize)
+            if (size > maxSizeUrls) {
+                servers?.removeAt(maxSizeUrls)
             }
         }
     }
 
-
+    // Update servers list - put the server we are trying to connect to at the beginning.
     private fun updateServersList(id: Long?) {
         if (id == null)
             return
@@ -162,72 +159,58 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    // Tries to get screenshot from server - if succeed go to game screen
     private fun checkIfCanConnect(url: String) {
         try {
-            var formattedUrl:String = url
-            if(!url.startsWith(httpStr)){
+            // Adds http prefix if it's not url's prefix
+            var formattedUrl: String = url
+            if (!url.startsWith(httpStr)) {
                 formattedUrl = "$httpStr$url"
             }
+                // Tries to build retrofit with url - if didn't succeed toasts "Error connecting".
             val retrofit = Retrofit.Builder().baseUrl(formattedUrl).build();
+            // Defining the api for sending by the request
+            val api:Api = retrofit.create(Api::class.java)
+            // The actual check
+            checkConnectionAsync(api,formattedUrl)
 
-            //Defining the api for sending by the request
-            val api = retrofit.create(Api::class.java)
+        } catch (e: Exception) {
+            toastMessage(applicationContext,"Error connecting to server")
+        }
+    }
 
-            //Sending the request
+    private fun checkConnectionAsync(api:Api,formattedUrl: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Sending the request
             api.getScreenShot().enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
+                    // We got a good response - a screenshot so we go to game screen
                     if (response.message() == "OK") {
-                        println("Successfully got screenshot")
-                        /*val imageStream = response.body()?.byteStream()
-                        val theImage = BitmapFactory.decodeStream(imageStream)
-                        runOnUiThread {
-                            //todo change to the id of imageview
-                            // X.setImageBitmap(theImage)
-                        }*/
                         launchGame(formattedUrl)
-                        //println(response.body()?.string())
                     } else {
-                        //todo write "Error connecting"
-                        println("Failed to get screenshot - on response")
-
+                        //we got a bad response - we don't connect
+                        toastMessage(applicationContext,"Error connecting to server")
                     }
                 }
-
+                // We didn't get any response - we don't connect
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    //todo write "Error connecting"
-                    val text = "Failed to get screenshot - invalid url"
-                    val duration = Toast.LENGTH_SHORT
-
-                    val toast = Toast.makeText(applicationContext, text, duration)
-                    toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 250)
-                    toast.show()
-                    println("Failed to get screenshot - on failure")
+                    toastMessage(applicationContext,"Error connecting to server")
                 }
             })
-        } catch (e: Exception) {
-            //todo write "Error connecting"
-            val text = "Error connecting"
-            val duration = Toast.LENGTH_SHORT
-
-            val toast = Toast.makeText(applicationContext, text, duration)
-            toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 250)
-            toast.show()
-            //println("Failed to get screenshot - invalid url")
         }
     }
 
-
+    // Launch the game screen and pass the url to it.
     private fun launchGame(url: String) {
-        val intent = Intent(this, gameScreen::class.java)
+        val intent = Intent(this, GameScreen::class.java)
         intent.putExtra(EXTRA_MESSAGE, url)
         startActivity(intent)
     }
 
-
+    // Returns id of the button if it has the text on it - otherwise returns null.
     private fun buttonHasText(text: String): Long? {
         for ((i, button) in buttonList.withIndex()) {
             if (text == button.text) {
@@ -237,6 +220,7 @@ class MainActivity : AppCompatActivity() {
         return null
     }
 
+    // When the app stops we update the DB with our servers list.
     override fun onStop() {
         super.onStop()
         uiScope.launch {
@@ -244,7 +228,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    // Insert server to DB - update if it was there already.
     private suspend fun insertToDB(server: Server?, newUrl: String, theTime: Long) {
         withContext(Dispatchers.IO) {
             if (server != null) {
@@ -255,6 +239,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Update the DB with all the servers in the list.
     private suspend fun updateDB() {
         withContext(Dispatchers.IO) {
             if (servers != null && servers!!.isNotEmpty()) {
