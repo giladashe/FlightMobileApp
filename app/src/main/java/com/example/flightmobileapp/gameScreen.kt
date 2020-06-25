@@ -34,10 +34,10 @@ class gameScreen : AppCompatActivity() {
     private var rudder: Double = 0.0
     private var elevator: Double = 0.0
     private var throttle: Double = 0.0
-    private var prevAileron: Double = 0.0
-    private var prevRudder: Double = 0.0
-    private var prevElevator: Double = 0.0
-    private var prevThrottle: Double = 0.0
+    private var prevAileron: Double = 0.01
+    private var prevRudder: Double = 0.01
+    private var prevElevator: Double = 0.01
+    private var prevThrottle: Double = 0.01
 
     // THROTTLE: (0, 1), AILERON: (-1,1), ELEVATOR: (-1,1), RUDDER: (-1,1)
     /*private var angleTextView: TextView? = null
@@ -89,13 +89,13 @@ class gameScreen : AppCompatActivity() {
                     else -> directionTextView!!.text = R.string.center_lab.toString()
                 }*/
                 if (changedAtLeastInOnePercent()) {
-                    sendJoystickData();
+                    sendWheelsData();
                 }
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL)
 
 
-        //For Aileron seek bar
+        //For rudder seek bar
         rudderSeekBar?.max = 200;
         val rudderChanged: SeekBar.OnSeekBarChangeListener =
             object : SeekBar.OnSeekBarChangeListener {
@@ -106,6 +106,9 @@ class gameScreen : AppCompatActivity() {
                 ) {
                     rudder = (progress.toDouble() - 100.0) / 100.0;
                     rudderTextView?.text = rudder.toString()
+                    if (changedAtLeastInOnePercent()) {
+                        sendWheelsData();
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -118,7 +121,7 @@ class gameScreen : AppCompatActivity() {
             }
         rudderSeekBar?.setOnSeekBarChangeListener(rudderChanged)
 
-        //For Throttle seek bar
+        //For throttle seek bar
         val throttleChanged: SeekBar.OnSeekBarChangeListener =
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(
@@ -128,6 +131,9 @@ class gameScreen : AppCompatActivity() {
                 ) {
                     throttle = progress.toDouble() / 100.0;
                     throttleTextView?.text = throttle.toString()
+                    if (changedAtLeastInOnePercent()) {
+                        sendWheelsData();
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -141,12 +147,14 @@ class gameScreen : AppCompatActivity() {
         throttleSeekBar?.setOnSeekBarChangeListener(throttleChanged)
     }
 
-
+    //!!!!!!!!!!!!!!!!!!!!!!! Stopped here - don't let me to put breakpoint !!!!!!!!!!!!!!!!!!!!!
     private fun changedAtLeastInOnePercent(): Boolean {
-        return (aileron > 1.01 * prevAileron) || (aileron < 0.99 * prevAileron)
-                || (rudder > 1.01 * prevRudder) || (rudder < 0.99 * prevRudder)
-                || (throttle > 1.01 * prevThrottle) || (throttle < 0.99 * prevThrottle)
-                || (elevator > 1.01 * prevElevator) || (elevator < 0.99 * prevElevator)
+        val upperLimit = 20.0 //todo: change me to 1 precent
+        val lowerLimit = 0.9
+        return (aileron > upperLimit * prevAileron) || (aileron < lowerLimit * prevAileron)
+                || (rudder > upperLimit * prevRudder) || (rudder < lowerLimit * prevRudder)
+                || (throttle > upperLimit * prevThrottle) || (throttle < lowerLimit * prevThrottle)
+                || (elevator > upperLimit * prevElevator) || (elevator < lowerLimit * prevElevator)
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
@@ -309,7 +317,7 @@ class gameScreen : AppCompatActivity() {
 
     }
 
-    fun sendJoystickData() {
+    fun sendWheelsData() {
         val json =
             "{\"aileron\": $aileron,\n \"rudder\": $rudder,\n \"elevator\": $elevator,\n \"throttle\": $throttle\n}"
         val rb: RequestBody = RequestBody.create(MediaType.parse("application/json"), json)
@@ -327,10 +335,10 @@ class gameScreen : AppCompatActivity() {
         api.postJoystickData(rb).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 println("Successfully posted joystick data to controller");
-                prevAileron = aileron
-                prevElevator = elevator
-                prevRudder = rudder
-                prevThrottle = throttle
+                prevAileron =  initPrev(aileron);
+                prevElevator = initPrev(elevator);
+                prevRudder = initPrev(rudder);
+                prevThrottle = initPrev(throttle);
                 println(json)
             }
 
@@ -338,7 +346,17 @@ class gameScreen : AppCompatActivity() {
                 println("Failed to post joystick data to controller");
             }
         })
+    }
 
-
+    /*
+    * This function made to deal with the case in which the prev value is 0, so when checking
+    * if value changed in 1 percent when comparing this to prev value it always returns false
+    *
+    * */
+    private fun initPrev(current: Double): Double {
+        if(current == 0.0){
+            return 0.01
+        }
+        return current
     }
 }
