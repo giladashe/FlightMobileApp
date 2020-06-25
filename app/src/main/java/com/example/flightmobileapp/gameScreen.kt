@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.android.synthetic.main.activity_game_screen.*
+import kotlinx.coroutines.delay
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -49,6 +50,7 @@ class gameScreen : AppCompatActivity() {
     private var throttleSeekBar: SeekBar? = null
     private var rudderTextView: TextView? = null
     private var throttleTextView: TextView? = null
+    private var stop = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,8 +66,6 @@ class gameScreen : AppCompatActivity() {
         powerTextView = findViewById(R.id.powerTextView) as? TextView
         directionTextView = findViewById(R.id.directionTextView) as? TextView*/
         //Referencing also other views
-
-
 
 
         joystick?.setOnJoystickMoveListener(object : JoystickView.OnJoystickMoveListener {
@@ -140,12 +140,6 @@ class gameScreen : AppCompatActivity() {
             }
         throttleSeekBar?.setOnSeekBarChangeListener(throttleChanged)
     }
-
-    override fun onStart() {
-        super.onStart()
-        getImage(urlAddress)
-    }
-
 
 
     private fun changedAtLeastInOnePercent(): Boolean {
@@ -244,6 +238,7 @@ class gameScreen : AppCompatActivity() {
         }
 
     }
+
     private fun getImage(url: String?) {
         if (url == null) {
             return
@@ -255,35 +250,48 @@ class gameScreen : AppCompatActivity() {
             val api = retrofit.create(Api::class.java)
             CoroutineScope(Dispatchers.IO).launch {
                 //Sending the request
-                /*while (true) {
-                    delay(250)*/
-                api.getScreenShot().enqueue(object : Callback<ResponseBody> {
-                    override fun onResponse(
-                        call: Call<ResponseBody>,
-                        response: Response<ResponseBody>
-                    ) {
-                        if (response.message() == "OK") {
-                            println("Successfully got screenshot")
-                            showImage(response)
-                        } else {
-                            //todo write "Error connecting"
-                            println("Failed to get screenshot - on response")
+                while (!stop) {
+                    delay(250)
+                    api.getScreenShot().enqueue(object : Callback<ResponseBody> {
+                        override fun onResponse(
+                            call: Call<ResponseBody>,
+                            response: Response<ResponseBody>
+                        ) {
+                            if (response.message() == "OK") {
+                                println("Successfully got screenshot")
+                                showImage(response)
+                            } else {
+                                //todo write "Error connecting"
+                                println("Failed to get screenshot - on response")
 
+                            }
                         }
-                    }
 
-                    override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                        //todo write "Error connecting"
-                        println("Failed to get screenshot - on failure")
-                    }
-                })
+                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                            //todo write "Error connecting"
+                            println("Failed to get screenshot - on failure")
+                        }
+                    })
+                }
             }
-            //}
         } catch (e: Exception) {
             //todo write "Error connecting"
             println("Failed to get screenshot - invalid url")
         }
     }
+
+
+    override fun onPause() {
+        super.onPause()
+        stop = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        stop = false
+        getImage(urlAddress)
+    }
+
 
     private fun showImage(response: Response<ResponseBody>) {
         try {

@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
             })
         } catch (e: Exception) {
             //todo write "Error connecting"
-            val text = "Failed to get screenshot - invalid url"
+            val text = "Error connecting"
             val duration = Toast.LENGTH_SHORT
 
             val toast = Toast.makeText(applicationContext, text, duration)
