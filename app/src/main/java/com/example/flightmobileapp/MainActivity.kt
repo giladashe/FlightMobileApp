@@ -23,8 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     // We use the toastMessage here and in the game screen
     companion object {
-        private const val maxSizeUrls = 5
-        private const val httpStr: String = "http://"
+        private const val MAX_SIZE_URLS = 5
+        private const val HTTP_STR: String = "http://"
 
         //toast message to the screen
         fun toastMessage(context: Context, messageText: String) {
@@ -135,9 +135,8 @@ class MainActivity : AppCompatActivity() {
             biggestId += 1
             servers?.add(0, Server(serverId = biggestId, url = url))
             size++
-            //todo make variable max size
-            if (size > maxSizeUrls) {
-                servers?.removeAt(maxSizeUrls)
+            if (size > MAX_SIZE_URLS) {
+                servers?.removeAt(MAX_SIZE_URLS)
             }
         }
     }
@@ -164,8 +163,8 @@ class MainActivity : AppCompatActivity() {
         try {
             // Adds http prefix if it's not url's prefix
             var formattedUrl: String = url
-            if (!url.startsWith(httpStr)) {
-                formattedUrl = "$httpStr$url"
+            if (!url.startsWith(HTTP_STR)) {
+                formattedUrl = "$HTTP_STR$url"
             }
                 // Tries to build retrofit with url - if didn't succeed toasts "Error connecting".
             val retrofit = Retrofit.Builder().baseUrl(formattedUrl).build();
