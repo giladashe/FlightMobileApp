@@ -70,6 +70,7 @@ class JoystickView : View, Runnable {
         secondaryCircle!!.color = Color.GREEN
         secondaryCircle!!.style = Paint.Style.STROKE
         secondaryCircle!!.strokeWidth = 4f
+        //f
         verticalLine = Paint()
         verticalLine!!.strokeWidth = 7f
         verticalLine!!.color = Color.RED
