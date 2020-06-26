@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 
-class JoystickView : View, Runnable  {
+class JoystickView : View, Runnable {
 
     private val RAD = 57.2957795
     val DEFAULT_LOOP_INTERVAL: Long = 100 // 100 ms
@@ -53,7 +53,11 @@ class JoystickView : View, Runnable  {
         initJoystickView();
     }
 
-    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
+        context,
+        attrs,
+        defStyle
+    ) {
         initJoystickView();
     }
 
@@ -65,11 +69,12 @@ class JoystickView : View, Runnable  {
         secondaryCircle = Paint()
         secondaryCircle!!.color = Color.GREEN
         secondaryCircle!!.style = Paint.Style.STROKE
+        secondaryCircle!!.strokeWidth = 4f
         verticalLine = Paint()
-        verticalLine!!.strokeWidth = 5f
+        verticalLine!!.strokeWidth = 7f
         verticalLine!!.color = Color.RED
         horizontalLine = Paint()
-        horizontalLine!!.strokeWidth = 2f
+        horizontalLine!!.strokeWidth = 4f
         horizontalLine!!.color = Color.BLACK
         button = Paint(Paint.ANTI_ALIAS_FLAG)
         button!!.color = Color.RED

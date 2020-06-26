@@ -45,9 +45,7 @@ class GameScreen : AppCompatActivity() {
     private var prevThrottle: Double = 0.0
 
     // THROTTLE: (0, 1), AILERON: (-1,1), ELEVATOR: (-1,1), RUDDER: (-1,1)
-    /*private var angleTextView: TextView? = null
-    private var powerTextView: TextView? = null
-    private var directionTextView: TextView? = null*/
+
     private var joystick: JoystickView? = null
     private var urlAddress: String? = null
     private var imageFromSimulator: ImageView? = null
@@ -129,16 +127,8 @@ class GameScreen : AppCompatActivity() {
         throttleSeekBar?.setOnSeekBarChangeListener(throttleChanged)
     }
 
-    //!!!!!!!!!!!!!!!!!!!!!!! Stopped here - don't let me to put breakpoint !!!!!!!!!!!!!!!!!!!!!
     private fun changedAtLeastInOnePercent(): Boolean {
 
-//        println("=============================================")
-//        println("=============================================")
-//        println("prevAileron=$prevAileron ; aileron=$aileron")
-//        println("prevElevator=$prevElevator ; elevator=$elevator")
-//        println("prevRudder=$prevRudder ; rudder=$rudder")
-//        println("prevThrottle=$prevThrottle ; throttle=$throttle")
-//        println("=============================================")
 
         val offset = 0.02
         val throttleOffset = 0.01
@@ -146,11 +136,6 @@ class GameScreen : AppCompatActivity() {
                 || abs(rudder - prevRudder) >= offset
                 || abs(throttle - prevThrottle) >= throttleOffset
                 || abs(elevator - prevElevator) >= offset)
-
-//        return ((aileron > upperLimit * prevAileron) || (aileron < lowerLimit * prevAileron)
-//                || (rudder > upperLimit * prevRudder) || (rudder < lowerLimit * prevRudder)
-//                || (throttle > upperLimit * prevThrottle) || (throttle < lowerLimit * prevThrottle)
-//                || (elevator > upperLimit * prevElevator) || (elevator < lowerLimit * prevElevator))
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
@@ -350,23 +335,4 @@ class GameScreen : AppCompatActivity() {
             MainActivity.toastMessage(applicationContext, "Invalid url - Go back to menu");
         }
     }
-
-    /*private fun toastMessage(messageText: String) {
-        val duration = Toast.LENGTH_SHORT
-        val toast = Toast.makeText(applicationContext, messageText, duration)
-        toast.setGravity(Gravity.BOTTOM or Gravity.START, 100, 250)
-        toast.show()
-    }*/
-
-    /*
-    * This function made to deal with the case in which the prev value is 0, so when checking
-    * if value changed in 1 percent when comparing this to prev value it always returns false
-    *
-    * */
-//    private fun initPrev(current: Double): Double {
-//        if(current == 0.0){
-//            return 0.01
-//        }
-//        return current
-//    }
 }
